@@ -1,4 +1,6 @@
 <?php
+include("path.php");
+include(ROOT_PATH . "\app\database\db.php");
 require __DIR__ . '/vendor/autoload.php';
 
 use Carbon\Carbon;
@@ -25,8 +27,8 @@ function stkPush($amount, $room_id)
         'Amount' => $amount,
         'PartyA' => $formatedPhoneNo,
         'PartyB' => 174379,
-        'PhoneNumber' => $_SESSION['phone_no'],
-        'CallBackURL' => 'https://60a8b840129d.ngrok.io/callback',
+        'PhoneNumber' => $formatedPhoneNo,
+        'CallBackURL' => 'https://6bce-196-202-223-204.in.ngrok.io/hotelbooking/callback_url.php',
         'AccountReference' => "Hotel Booking Payment",
         'TransactionDesc' => "Pay {$amount} for Room {$room_id}"
     ];

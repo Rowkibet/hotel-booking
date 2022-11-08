@@ -156,3 +156,14 @@ function deletePayment($table, $id) {
     $stmt = executeQuery($sql, ['payment_id' => $id]);
     return $stmt->affected_rows; 
 }
+
+function roomPrice($room_id) {
+    $sql = "SELECT r.*, rt.name, rt.price FROM rooms AS r 
+            JOIN room_type AS rt ON r.room_type_id=rt.id 
+            WHERE r.id={$room_id}";
+    $room = executeJoinQuery($sql);
+
+    $room_price = $room[0]['price'];
+
+    return $room_price;
+}

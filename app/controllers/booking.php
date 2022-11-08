@@ -134,6 +134,7 @@ if(isset($_POST['book-room'])) {
         if(count($bookingErrors) === 0) {
             $_SESSION['check_in_date'] = $_POST['check_in_date'];
             $_SESSION['check_out_date'] = $_POST['check_out_date'];
+            $_SESSION['room_id'] = $_POST['room_id'];
             header('location: ' .BASE_URL . '\payment_page.php?room_id=' . $id);
 
         } else {

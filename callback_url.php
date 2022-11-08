@@ -30,24 +30,18 @@ header("Content-Type: application/json");
     $CheckoutRequestID = $callbackContent->Body->stkCallback->CheckoutRequestID;
     $Amount = $callbackContent->Body->stkCallback->CallbackMetadata->Item[0]->Value;
     $MpesaReceiptNumber = $callbackContent->Body->stkCallback->CallbackMetadata->Item[1]->Value;
+    $TranscationDate = $callbackContent->Body->stkCallback->CallbackMetadata->Item[3]->Value;
     $PhoneNumber = $callbackContent->Body->stkCallback->CallbackMetadata->Item[4]->Value;
+    $room_price = roomPrice($_SESSION['room_id']);
+    $user_id = $_SESSION['id'];
+
     if ($Resultcode == 0) {
+        $insert = $conn->query("INSERT INTO payments(receipt_no,payment_date,amount_paid,payment_type,user_id) VALUES ('$MpesaReceiptNumber','$TranscationDate','$room_price','1','$user_id')");
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("<h1>Connection failed:</h1> " . $conn->connect_error);
-    } else {
-
-
-        $insert = $conn->query("INSERT INTO tinypesa(CheckoutRequestID,ResultCode,amount,MpesaReceiptNumber,PhoneNumber) VALUES ('$CheckoutRequestID','$Resultcode','$Amount','$MpesaReceiptNumber','$PhoneNumber')");
-        //unset($mpesaResponse);
         if($insert){
-        unset($logFile);
+            unset($logFile);
         }
-
-        $conn = null;
     }
-}
 
     
 

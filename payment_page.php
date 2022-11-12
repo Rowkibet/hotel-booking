@@ -1,7 +1,7 @@
 <?php 
     include("path.php"); 
     include(ROOT_PATH . "\app\database\db.php");
-    include(ROOT_PATH . "\app\controllers\booking.php")
+    include(ROOT_PATH . "\app\controllers\booking.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,7 +46,7 @@
                 </tr>
             </table>
             <p class="amount">Total Amount: <?php echo $amount ?></p>
-            <button class="small-btn"><a href="mpesaprocessor.php?amount=1&room_id=<?php echo $room_no ?>">Pay With MPESA</a></button>
+            <button class="small-btn"><a href="payment_page.php?amount=<?php echo $amount ?>&room_id=<?php echo $room_no ?>&nights=<?php echo $nights ?>">Pay With MPESA</a></button>
         </div>
     </div>
     

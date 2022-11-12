@@ -173,13 +173,18 @@ a {
     margin: 10px 0;
 }
 
-.filter select {
+.filter select, .filter input {
     border-radius: 5px;
     width: 200px;
     padding: 7px;
     margin-right: 5px;
     font-family: 'Poppins', sans-serif;
     font-size: 1rem;
+    outline: none;
+}
+
+.filter option[value=""][disabled] {
+    color: red;
 }
 
 .filter button {

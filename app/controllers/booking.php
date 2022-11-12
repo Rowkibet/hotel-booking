@@ -21,6 +21,9 @@ $booking_status = '';
 
 $checkBooking = '';
 $booking_title = 'All Bookings';
+$total = 0; // total amount for reports
+$is_conditions = 0;
+$roomType_id = '';
 
 // retrieve booking details for all guests
 $sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, rt.price FROM booking AS b 
@@ -58,14 +61,6 @@ $sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, r
         WHERE b.booking_status_id=1";
 $pendingBookings = executeJoinQuery($sql);
 $noOfBookings = count($pendingBookings);
-
-// retrieve all booking details that are confirmed
-$sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, rt.price FROM booking AS b 
-        JOIN booking_status AS bs ON b.booking_status_id=bs.id 
-        JOIN users AS u ON b.user_id=u.id 
-        JOIN room_type AS rt ON b.room_type_id=rt.id 
-        WHERE b.booking_status_id=2";
-$confirmedBookings = executeJoinQuery($sql);
 
 // retrieve all booking details that are checkedIn
 $sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, u.phone_no, rt.price, rt.name AS roomType FROM booking AS b 
@@ -169,6 +164,43 @@ if(isset($_GET['room_id'])) {
     $amount = $nights * $room[0]['price'];
 }
 
+// Book room after payment
+if(isset($_GET['amount'])) {
+    $user_id = $_SESSION['id'];
+    $id = $_GET['room_id'];
+    $sql = "SELECT r.*, rt.name AS roomType, rt.price FROM rooms AS r 
+            JOIN room_type AS rt ON r.room_type_id=rt.id 
+            WHERE r.id={$id}";
+    $room = executeJoinQuery($sql);
+
+    // store record to booking table
+    $booking_data['check_in_date'] = $_SESSION['check_in_date'];
+    $booking_data['check_out_date'] = $_SESSION['check_out_date'];
+    $booking_data['nights'] = $_GET['nights'];
+    $booking_data['amount'] = $_GET['amount'];
+    $booking_data['booking_status_id'] = '1';
+    $booking_data['user_id'] = $user_id;
+    $booking_data['room_id'] = $_GET['room_id'];
+    $booking_data['room_type_id'] = $room[0]['room_type_id'];
+    $booking_id = create($table, $booking_data);
+
+    // store payment record on payment table
+    $payment_data['receipt_no'] = substr(strtoupper(time().uniqid(mt_rand())), -10);
+    $payment_data['amount_paid'] = $_GET['amount'];
+    $payment_data['payment_type_id'] = '1';
+    $payment_data['user_id'] = $user_id;
+    $payment_data['booking_id'] = $booking_id;
+    $payment_id = create('payments', $payment_data);
+
+    // update room status to occupied
+    $booking = selectOne('booking', ['id' => $id]);
+    $count = update('rooms', $booking['room_id'], ['is_available' => '0']);
+
+    $_SESSION['message'] = 'Room Booked Successfully';
+    $_SESSION['type'] = 'success';
+    header('location: ' .BASE_URL . '/user_profile.php');
+}
+
 // Assign Room to Guest by Admin
 if(isset($_GET['guest_id'])) {
     $guest_id = $_GET['guest_id'];
@@ -251,20 +283,24 @@ if(isset($_GET['view_id'])) {
 }
 
 // Check In Guest
-if(isset($_GET['checkedin_id'])) {
+if(isset($_GET['checkedin_id']) || isset($_GET['dsb_checkedin_id'])) {
+    $dashboard = isset($_GET['dsb_checkedin_id']);
     $id = $_GET['checkedin_id'];
 
     //Update booking status to checkedIn
     $count = update('booking', $id, ['booking_status_id' => '3']);
 
-    // update room status to occupied
-    $booking = selectOne('booking', ['id' => $id]);
-    $count = update('rooms', $booking['room_id'], ['is_available' => '0']);
-
-    $_SESSION['message'] = 'Guest Checked In Successfully';
-    $_SESSION['type'] = 'success';
-    header('location: ' .BASE_URL . '\admin\booking\check_out.php');
-    exit();
+    if($dashboard) {
+        $_SESSION['message'] = 'Guest Checked In Successfully';
+        $_SESSION['type'] = 'success';
+        header('location: ' .BASE_URL . '\admin\dashboard.php');
+        exit();
+    } else {
+        $_SESSION['message'] = 'Guest Checked In Successfully';
+        $_SESSION['type'] = 'success';
+        header('location: ' .BASE_URL . '\admin\booking\index.php');
+        exit();
+    }
 }
 
 // Check Out Guest
@@ -280,7 +316,7 @@ if(isset($_GET['checkedout_id'])) {
 
     $_SESSION['message'] = 'Guest Checked Out Successfully';
     $_SESSION['type'] = 'success';
-    header('location: ' .BASE_URL . '\admin\booking\check_out.php');
+    header('location: ' .BASE_URL . '\admin\booking\index.php');
     exit();
 }
 
@@ -302,10 +338,6 @@ if(isset($_POST['filter-booking'])) {
         $bookings = $pendingBookings;
         $booking_status_id = $_POST['booking_status_id'];
         $booking_title = 'Pending Bookings';
-    } else if($_POST['booking_status_id'] === '2') {
-        $bookings = $confirmedBookings;
-        $booking_status_id = $_POST['booking_status_id'];
-        $booking_title = 'Cofirmed Bookings';
     } else if($_POST['booking_status_id'] === '3') {
         $bookings = $checkedinBookings;
         $booking_status_id = $_POST['booking_status_id'];
@@ -319,4 +351,47 @@ if(isset($_POST['filter-booking'])) {
         $booking_status_id = 'all';
         $booking_title = 'All Bookings';
     }
+}
+
+// Filter for reports in reports page
+if(isset($_POST['filter-report'])) {
+    // $sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, rt.price FROM booking AS b 
+    //         JOIN booking_status AS bs ON b.booking_status_id=bs.id 
+    //         JOIN users AS u ON b.user_id=u.id 
+    //         JOIN room_type AS rt ON b.room_type_id=rt.id 
+    //         WHERE rt.room_type_id=? AND
+    //         WHERE b.booking_status_id=? AND
+    //         WHERE b.check_in_date=? AND
+    //         WHERE b.check_out_date=?";
+
+    unset($_POST['filter-report']);
+
+    foreach($_POST as $key => $value) {
+        if(!empty($value)) {
+            $is_conditions = 1;
+        } else {
+            unset($_POST[$key]);
+        }
+    }
+
+    $sql = "SELECT b.*, bs.name AS booking_status_name, u.first_name, u.last_name, rt.price FROM booking AS b 
+            JOIN booking_status AS bs ON b.booking_status_id=bs.id 
+            JOIN users AS u ON b.user_id=u.id 
+            JOIN room_type AS rt ON b.room_type_id=rt.id";
+    
+    if($is_conditions) {
+        $i=0;
+        foreach($_POST as $key => $value) {
+            if($i === 0) {
+                $sql = $sql . " WHERE $key=$value";
+            } else {
+                $sql = $sql . " AND $key=$value";
+            }
+            $i++;
+        }
+        $bookings = executeJoinQuery($sql);
+    } else {
+        $bookings = executeJoinQuery($sql);
+    }
+
 }

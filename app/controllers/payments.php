@@ -17,9 +17,9 @@ $payment_type = '';
 $confirm_id = '';
 
 // retrieve all payment details
-$sql = "SELECT p.*, b.room_id, rt.name, u.first_name, u.last_name, pt.* FROM payments AS p JOIN booking AS b ON p.booking_id=b.id 
-        JOIN room_type AS rt ON b.room_type_id=rt.id 
-        JOIN users AS u ON b.user_id=u.id 
+$sql = "SELECT p.*, b.room_id, u.first_name, u.last_name, pt.p_type FROM payments AS p 
+        JOIN booking AS b ON p.booking_id=b.id 
+        JOIN users AS u ON p.user_id=u.id 
         JOIN payment_type AS pt ON p.payment_type_id=pt.id";
 $payments = executeJoinQuery($sql);
 
@@ -61,8 +61,7 @@ if(isset($_POST['add-payment'])) {
 // Update & View Payment
 if(isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "SELECT p.*, b.room_id, rt.name, u.first_name, u.last_name, pt.p_type FROM payments AS p 
-            JOIN booking AS b ON p.booking_id=b.id 
+    $sql = "SELECT p.*, rt.name, u.first_name, u.last_name, pt.p_type FROM payments AS p 
             JOIN room_type AS rt ON b.room_type_id=rt.id 
             JOIN users AS u ON b.user_id=u.id 
             JOIN payment_type AS pt ON p.payment_type_id=pt.id

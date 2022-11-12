@@ -1,7 +1,7 @@
 <?php include("path.php"); ?>
 <?php include(ROOT_PATH . "\app\database\db.php"); ?>
 <?php include(ROOT_PATH . "\app\controllers\booking.php") ?>
-
+<?php echo $_SESSION['message']; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

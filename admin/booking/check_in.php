@@ -46,7 +46,7 @@
                     </thead>
 
                     <!-- table rows -->
-                    <?php foreach($confirmedBookings as $key => $booking): ?>
+                    <?php foreach($pendingBookings as $key => $booking): ?>
                         <tr>
                             <td><?php echo $key + 1 ?></td>
                             <td><?php echo $booking['first_name'] . " " . $booking['last_name']; ?></td>

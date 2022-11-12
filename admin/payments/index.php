@@ -24,9 +24,9 @@
         <!-- Admin content -->
         <div class="admin-content">
             
-            <?php if($_SESSION['role_id'] === 1): ?>
+            <!-- <?php if($_SESSION['role_id'] === 1): ?>
                 <button class="btn"><a href="<?php echo BASE_URL . "/admin/payments/create.php"?>">Add Payment</a></button>
-            <?php endif; ?>
+            <?php endif; ?> -->
             <div class="table-wrapper">
 
                 <h2>Payments</h2>
@@ -38,9 +38,9 @@
                     <!-- columns and their names -->
                     <thead>
                         <th>#</th>
+                        <th>Receipt No</th>
                         <th>Full Name</th>
                         <th>Room No</th>
-                        <th>Room Type</th>
                         <th>Payment Method</th>
                         <th>Amount</th>
                         <th colspan="3">Action</th>
@@ -50,16 +50,14 @@
                     <?php foreach($payments as $key => $payment): ?>
                         <tr>
                             <td><?php echo $key + 1 . "."; ?></td>
+                            <td><?php echo $payment['receipt_no']; ?></td>
                             <td><?php echo $payment['first_name'] . " " . $payment['last_name']; ?></td>
                             <td><?php echo $payment['room_id']; ?></td>
-                            <td><?php echo $payment['name']; ?></td>
                             <td><?php echo $payment['p_type']; ?></td>
                             <td><?php echo $payment['amount_paid']; ?></td>
-                            <td><button><a href="view.php?id=<?php echo $payment['payment_id']; ?>">View</a></button></td>
-                            <?php if($_SESSION['role_id'] === 1): ?>
-                                <td><button><a href="edit.php?id=<?php echo $payment['payment_id']; ?>">Update</a></button></td>
-                                <td><button><a href="index.php?del_id=<?php echo $payment['payment_id']; ?>">Delete</a></button></td>
-                            <?php endif; ?>
+                            <!-- <td><button><a href="view.php?id=<?php echo $payment['payment_id']; ?>">View</a></button></td>
+                            <td><button><a href="edit.php?id=<?php echo $payment['payment_id']; ?>">Update</a></button></td> -->
+                            <td><button><a href="index.php?del_id=<?php echo $payment['payment_id']; ?>">Delete</a></button></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>

@@ -1,6 +1,7 @@
 <?php include("../../path.php"); ?>
 <?php include(ROOT_PATH . "\app\database\db.php"); ?>
 <?php include(ROOT_PATH . "\app\controllers\booking.php"); ?>
+<?php include(ROOT_PATH . "/app/controllers/rooms.php"); ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../../assets/fontawesome/css/all.min.css"  rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
-    <title>Booking</title>
+    <title>Reports</title>
 </head>
 <body>
      <!-- navigation bar -->
@@ -26,13 +27,22 @@
         <div class="admin-content">
             
             <div class="flex">
-                <button class="btn"><a href="<?php echo BASE_URL . "/admin/booking/create.php"?>">Add Booking</a></button>
-                <!-- <button class="btn"><a href="<?php echo BASE_URL . "/admin/booking/check_in.php"?>">Check In</a></button> -->
-                <!-- <button class="btn"><a href="<?php echo BASE_URL . "/admin/booking/check_out.php"?>">Check Out</a></button> -->
                 <div class="filter">
                     <form action="index.php" method="post">
+                        <select name="room_type_id" id="">
+                            <option value="" disabled>Room Type</option>
+                            <option value="">All</option>
+                            <?php foreach($room_types as $key => $room_type): ?>
+                                <?php if(!empty($roomType_id) && $roomType_id == $room_type['id']): ?>
+                                    <option selected value="<?php echo $room_type['id']; ?>"><?php echo $room_type['name']; ?></option>
+                                <?php else: ?>
+                                    <option value="<?php echo $room_type['id']; ?>"><?php echo $room_type['name']; ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
                         <select name="booking_status_id" id="">
-                        <option value="all">All</option>
+                            <option value="" disabled>Status</option>
+                            <option value="">All</option>
                             <?php foreach(array_slice($all_booking_status, 0, 4) as $key => $booking_status): ?>
                                 <?php if(!empty($booking_status_id) && $booking_status_id == $booking_status['id']): ?>
                                     <option selected value="<?php echo $booking['id']; ?>"><?php echo $booking_status['name']; ?></option>
@@ -41,7 +51,8 @@
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" name="filter-booking">Filter</button>
+
+                        <button type="submit" name="filter-report">Submit</button>
                     </form>
                     </form>
                 </div>
@@ -51,45 +62,38 @@
                 <!-- notification messages -->
                 <?php include(ROOT_PATH . "/app/includes/messages.php"); ?>
 
-                <h2><?php echo $booking_title ?></h2>
+                <h2>Reports</h2>
                 <table>
                     <!-- columns and their names -->
                     <thead>
                         <th>#</th>
                         <th>Guest Name</th>
-                        <th>Booking Date</th>
-                        <th>Room Booked</th>
-                        <th>Status</th>
+                        <th>Room</th>
+                        <th>Check In Date</th>
+                        <th>Check Out Date</th>
                         <th>Price</th>
-                        <th>Total Amount</th>
-                        <th colspan="3">Action</th>
+                        <th>Nights</th>
+                        <th>Amount</th>
                     </thead>
 
                     <!-- table rows -->
                     <?php foreach($bookings as $key => $booking): ?>
                         <tr>
-                            <td><?php echo $key + 1 . "." ?></td>
+                            <td><?php echo $key+1 . "." ?></td>
                             <td><?php echo $booking['first_name'] . " " . $booking['last_name']; ?></td>
-                            <td><?php echo $booking['booking_date']; ?></td>
                             <td><?php echo $booking['room_id']; ?></td>
-                            <td><?php echo $booking['booking_status_name']; ?></td>
+                            <td><?php echo $booking['check_in_date']; ?></td>
+                            <td><?php echo $booking['check_out_date']; ?></td>
                             <td><?php echo $booking['price']; ?></td>
-                            <td><?php echo $booking['amount']; ?></td>
-                            <td><button><a href="view.php?view_id=<?php echo $booking['id']; ?>">View</a></button></td>
-                            <?php if($booking['booking_status_name'] === 'pending') : ?>
-                                <td><button><a href="index.php?checkedin_id=<?php echo $booking['id']; ?>">Check In</a></button></td>
-                            <?php endif; ?>
-                            <?php if($booking['booking_status_name'] === 'checkedin') : ?>
-                                <td><button><a href="index.php?checkedout_id=<?php echo $booking['id']; ?>">Check Out</a></button></td>
-                            <?php endif; ?>
-                            <?php if($_SESSION['role_id'] === 1): ?>
-                                <td><button><a href="<?php echo BASE_URL . "/admin/payments/edit.php"?>">Update</a></button></td>
-                                <td><button><a href="<?php echo BASE_URL . "/admin/booking/index.php?del_id=" . $booking['id']; ?>">Delete</a></button></td>
-                            <?php endif; ?>
+                            <td><?php echo $booking['nights']; ?></td>
+                            <td><?php echo $booking['price'] * $booking['nights']; ?></td>
+                            <?php $total+=($booking['price'] * $booking['nights']); ?>
                         </tr>
                     <?php endforeach; ?>
-                  
                 </table>
+
+                <p>Total Amount: <?php echo $total; ?></p>
+                <button class="btn">Print</button>
             </div>
         </div>
         <!-- // Admin Content -->

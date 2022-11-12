@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="preview-card flex">
-                    <p>Booking Requests</p>
+                    <p>Guests to CheckIn</p>
                     <p><?php echo $noOfBookings; ?></p>
                 </div>
 
@@ -54,7 +54,7 @@
             
             <div class="card-wrapper flight-preview">
                 <div class="preview-card">
-                    <h2>Booking Requests</h2>
+                    <h2>Check In Guests</h2>
 
                     <table>
                         <tr>
@@ -63,9 +63,7 @@
                             <th>Check In</th>
                             <th>Check Out</th>
                             <th>Nights</th>
-                            <th>Price</th>
-                            <th>Amount</th>
-                            <th colspan="2">Actions</th> 
+                            <th>Actions</th> 
                         </tr>
                         <?php foreach($pendingBookings as $key => $booking): ?>
                             <tr>
@@ -74,10 +72,7 @@
                                 <td><?php echo $booking['check_in_date']; ?></td>
                                 <td><?php echo $booking['check_out_date']; ?></td>
                                 <td><?php echo $booking['nights']; ?></td>
-                                <td><?php echo $booking['price']; ?></td>
-                                <td><?php echo $booking['amount']; ?></td>
-                                <td><button><a href="<?php echo BASE_URL . "/admin/payments/create.php?confirm_id=" . $booking['id']; ?>">Confirm</a></button></td>
-                                <td><button>Cancel</button></td> 
+                                <td><button><a href="dashboard.php?dsb_checkedin_id=<?php echo $booking['id']; ?>">Check In</a></button></td> 
                             </tr>
 
                         <?php endforeach; ?>

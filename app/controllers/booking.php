@@ -193,7 +193,7 @@ if(isset($_GET['amount'])) {
     $payment_id = create('payments', $payment_data);
 
     // update room status to occupied
-    $booking = selectOne('booking', ['id' => $id]);
+    $booking = selectOne('booking', ['id' => $booking_id]);
     $count = update('rooms', $booking['room_id'], ['is_available' => '0']);
 
     $_SESSION['message'] = 'Room Booked Successfully';
